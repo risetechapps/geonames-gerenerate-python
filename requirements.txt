@@ -1,0 +1,8 @@
+# Database drivers
+mysql-connector-python>=8.0.0
+psycopg2-binary>=2.9.0
+pymongo>=4.0.0
+certifi>=2023.0.0
+
+# Terminal UI
+rich>=13.0.0
