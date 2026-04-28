@@ -1,0 +1,33 @@
+{
+  "sqlite": {
+    "enabled": false,
+    "database": "db.sqlite"
+  },
+  "mysql": {
+    "enabled": false,
+    "host": "localhost",
+    "user": "root",
+    "password": "",
+    "database": "geonames"
+  },
+  "postgresql": {
+    "enabled": false,
+    "host": "localhost",
+    "user": "postgres",
+    "password": "",
+    "database": "geonames"
+  },
+  "mongodb": {
+    "enabled": true,
+    "host": "localhost",
+    "port": 27017,
+    "username": null,
+    "password": null,
+    "authSource": null,
+    "uri": "mongodb+srv://softhouse:SNlI1vnbb9iMv4On@cluster0.fxel7ab.mongodb.net/?appName=Cluster0"
+  },
+  "static_api": {
+    "enabled": false,
+    "output_path": "geonames/json"
+  }
+}
