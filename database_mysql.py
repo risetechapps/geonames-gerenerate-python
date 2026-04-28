@@ -2,6 +2,8 @@ import mysql.connector
 import json
 
 from languages import get_language
+from country_formats import get_country_formats
+from country_documents import get_country_documents
 
 
 def setup_db(config):
@@ -132,7 +134,8 @@ def setup_db(config):
                        language_code VARCHAR
                    (
                        50
-                   )
+                   ),
+                       documents JSON
                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
                    ''')
 
@@ -239,18 +242,33 @@ def insert_data(conn, data):
 
         language = get_language(clean(c.get('name')))
 
-        # 1. País (26 colunas)
+        # Buscar formatos do país
+        iso3 = clean(c.get('iso3'))
+        formats = get_country_formats(iso3)
+        documents = get_country_documents(iso3)
+
+        # Usar formatos da API se existirem, senão usar os do nosso módulo
+        zip_code_format = c.get('postal_code_format') or json.dumps(formats.get('zip_code_format'), ensure_ascii=False)
+        zip_code_regex = c.get('postal_code_regex') or json.dumps(formats.get('zip_code_regex'), ensure_ascii=False)
+        telephone_format = json.dumps(formats.get('telephone_format'), ensure_ascii=False)
+        telephone_regex = json.dumps(formats.get('telephone_regex'), ensure_ascii=False)
+        cellphone_format = json.dumps(formats.get('cellphone_format'), ensure_ascii=False)
+        cellphone_regex = json.dumps(formats.get('cellphone_regex'), ensure_ascii=False)
+        documents_json = json.dumps(documents, ensure_ascii=False)
+
+        # 1. País (27 colunas)
         dados_pais = (
             c.get('id'), clean(c.get('name')), clean(c.get('iso3')), clean(c.get('iso2')),
             c.get('phonecode'), clean(c.get('capital')), c.get('currency'), clean(c.get('currency_name')),
             c.get('currency_symbol'), c.get('tld'), clean(c.get('native')), clean(c.get('region')),
             clean(c.get('subregion')), clean(c.get('nationality')),
-            c.get('postal_code_format'), c.get('postal_code_regex'),
-            None, None, None, None,
-            json.dumps(c.get('timezones')), json.dumps(c.get('translations')),
-            c.get('latitude'), c.get('longitude'), c.get('emoji'), c.get('emojiU'), language
+            zip_code_format, zip_code_regex,
+            telephone_format, telephone_regex, cellphone_format, cellphone_regex,
+            json.dumps(c.get('timezones'), ensure_ascii=False), json.dumps(c.get('translations'), ensure_ascii=False),
+            c.get('latitude'), c.get('longitude'), c.get('emoji'), c.get('emojiU'), language,
+            documents_json
         )
-        sql_pais = f"INSERT IGNORE INTO countries VALUES ({','.join(['%s'] * 27)})"
+        sql_pais = f"INSERT IGNORE INTO countries VALUES ({','.join(['%s'] * 28)})"
         cursor.execute(sql_pais, dados_pais)
 
         # 2. Estados (8 colunas)
